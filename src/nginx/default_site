@@ -1,0 +1,35 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+
+    root /var/www;
+    index index.html index.php;
+
+    # Make site accessible from http://localhost/
+    server_name localhost;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location = /favicon.ico { log_not_found off; access_log off; }
+    location = /robots.txt { access_log off; log_not_found off; }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;   
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        send_timeout 1800;
+        fastcgi_read_timeout 1800; 
+    }
+
+    # Deny .htaccess file access
+    location ~ /\.ht {
+        deny all;
+    }
+
+}
